@@ -5,43 +5,29 @@ import numpy as np
 
 
 class NN:
-    def __init__(self, layers: List[Layer] = None):
+    def __init__(self, layers: List[Layer] = None, loss_func: Loss = None):
         """
         Initialize the neural network with an empty list of layers.
 
         """
         self.layers = layers if layers is not None else []
-        self.loss_func: Loss = None
+        self.loss_func: Loss | None = None
 
     def forward(self, x: np.ndarray):
-        """
-        Perform a forward pass through the network.
-        """
         for layer in self.layers:
             x = layer.forward(x)
         return x
 
     def backward(self, y_true: np.ndarray, y_pred: np.ndarray):
-        """
-        Compute the gradient of the loss with respect to the y_pred layer and propagate it backward through the network.
-        """
-        # G = dL/dZ
-        # dL/dW = x.T @ G
-        # dL/db = G.sum(axis=0)
-        # dL/dx = G @ W.T
-
         if self.loss_func is None:
             raise ValueError("Loss function is not defined.")
 
-        grad = self.loss_func.backward(y_true, y_pred)
+        grad = self.loss_func.backward(y_pred, y_true)
 
-        for layer in self.layers:
-            layer.backward(grad)
+        for layer in reversed(self.layers):
+            grad = layer.backward(grad)
 
     def loss(self, y_pred: np.ndarray, y_true: np.ndarray) -> float:
-        """
-        Compute the Mean Squared Error (MSE) loss between the y_pred and the y_true.
-        """
         if self.loss_func is None:
             raise ValueError("Loss function is not defined.")
 

@@ -27,16 +27,17 @@ class Dense(Layer):
         self.db = None
 
     def forward(self, x: np.ndarray) -> np.ndarray:
+        if x.ndim == 1:
+            x = x[None, :]
         self.x = x
         return x @ self.W + self.b
 
     def backward(self, grad_out: np.ndarray) -> np.ndarray:
-        # grad_out: dL/dy, shape (N, out_dim)
-        print(grad_out.shape, self.x.shape)
+        if grad_out.ndim == 1:
+            grad_out = grad_out[None, :]
         self.dW = self.x.T @ grad_out
         self.db = grad_out.sum(axis=0)
-        grad_in = grad_out @ self.W.T
-        return grad_in
+        return grad_out @ self.W.T
 
     def step(self, lr: float) -> None:
         self.W -= lr * self.dW
@@ -74,7 +75,7 @@ class Sigmoid(Layer):
         self.y = None
 
     def forward(self, x: np.ndarray) -> np.ndarray:
-        self.y = 1 / (1 + np.exp(-x))
+        self.y = 1.0 / (1.0 + np.exp(-x))
         return self.y
 
     def backward(self, grad: np.ndarray) -> np.ndarray:
