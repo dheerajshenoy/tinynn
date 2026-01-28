@@ -3,7 +3,6 @@ from tinynn.loss import Loss, MSELoss
 from typing import List
 import numpy as np
 
-
 class NN:
     def __init__(self, layers: List[Layer] = None, loss_func: Loss = None):
         """
@@ -41,3 +40,5 @@ class NN:
         for layer in self.layers:
             if hasattr(layer, "step"):
                 layer.step(learning_rate)
+
+
